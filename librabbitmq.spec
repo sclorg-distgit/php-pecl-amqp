@@ -1,5 +1,5 @@
-# remirepo spec file for librabbitmq-last
-# renamed to allow parallel installation
+# CentOS SCLo spec file for librabbitmq
+# Only static library
 #
 # Fedora spec file for librabbitmq
 #
@@ -15,15 +15,8 @@
 %global gh_owner    alanxz
 %global gh_project  rabbitmq-c
 %global libname     librabbitmq
-# soname 4 since 0.6.0 (Fedora 23) 0.7.0/4.1, 0.8.0/4.2
-# soname 1 up to 0.5.2
-%global soname      4
 
-%if 0%{?fedora} < 23
-Name:      %{libname}-last
-%else
 Name:      %{libname}
-%endif
 Summary:   Client library for AMQP
 Version:   0.8.0
 Release:   1%{?dist}
@@ -33,41 +26,22 @@ URL:       https://github.com/alanxz/rabbitmq-c
 
 Source0:   https://github.com/%{gh_owner}/%{gh_project}/archive/%{gh_commit}/%{gh_project}-%{version}-%{gh_short}.tar.gz
 
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-%if 0%{?rhel} == 5
-BuildRequires: cmake28
-BuildRequires: popt
-%else
 BuildRequires: cmake > 2.8
 BuildRequires: popt-devel
-%endif
 BuildRequires: openssl-devel
 # For man page
 BuildRequires: xmlto
-
-%if "%{name}" == "%{libname}"
-Obsoletes:      %{libname}-last <= %{version}
-%endif
 
 
 %description
 This is a C-language AMQP client library for use with AMQP servers
 speaking protocol versions 0-9-1.
-%if "%{name}" != %{libname}
-This package is designed to be installed beside system %{libname}.
-%endif
 
 
 %package devel
 Summary:    Header files and development libraries for %{name}
 Group:      Development/Libraries
 Requires:   %{name}%{?_isa} = %{version}-%{release}
-%if "%{name}" != %{libname}
-Conflicts:  %{libname}-devel < %{version}
-Provides:   %{libname}-devel = %{version}-%{release}
-%else
-Obsoletes:  %{libname}-last-devel <= %{version}
-%endif
 
 %description devel
 This package contains the header files and development libraries
@@ -78,12 +52,6 @@ for %{name}.
 Summary:    Example tools built using the librabbitmq package
 Group:      Development/Libraries
 Requires:   %{name}%{?_isa} = %{version}
-%if "%{name}" != %{libname}
-Conflicts:  %{libname}-tools < %{version}
-Provides:   %{libname}-tools = %{version}-%{release}
-%else
-Obsoletes:  %{libname}-last-tools <= %{version}
-%endif
 
 %description tools
 This package contains example tools built using %{name}.
@@ -105,12 +73,9 @@ cp -pr examples Examples
 
 %build
 # static lib required for tests
-%if 0%{?rhel} == 5
-%cmake28 \
-%else
 %cmake \
-%endif
   -DBUILD_TOOLS_DOCS:BOOL=ON \
+  -DBUILD_SHARED_LIBS:BOOL=OFF \
   -DBUILD_STATIC_LIBS:BOOL=ON
 
 make %{_smp_mflags}
@@ -118,8 +83,6 @@ make %{_smp_mflags}
 
 %install
 make install  DESTDIR="%{buildroot}"
-
-rm %{buildroot}%{_libdir}/%{libname}.a
 
 
 %check
@@ -130,27 +93,20 @@ grep @ %{buildroot}%{_libdir}/pkgconfig/librabbitmq.pc && exit 1
 make test
 
 
-%clean
-rm -rf %{buildroot}
-
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
 
 
 %files
-%defattr (-,root,root,-)
 %{!?_licensedir:%global license %%doc}
 %license LICENSE-MIT
-%{_libdir}/%{libname}.so.%{soname}*
 
 
 %files devel
-%defattr (-,root,root,-)
 %doc AUTHORS THANKS TODO *.md
 %doc Examples
-%{_libdir}/%{libname}.so
+%{_libdir}/%{libname}.a
 %{_includedir}/amqp*
 %{_libdir}/pkgconfig/%{libname}.pc
 
@@ -162,6 +118,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jun 16 2017 Remi Collet <remi@remirepo.net> - 0.8.0-1
+- cleanup for SCLo build
+- provide only the static library
+
 * Tue Apr 12 2016 Remi Collet <remi@fedoraproject.org> - 0.8.0-1
 - update to 0.8.0
 
