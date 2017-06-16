@@ -1,3 +1,5 @@
+# centos/sclo spec file for php-pecl-igbinary, from:
+#
 # remirepo spec file for php-pecl-amqp
 # with SCL compatibility, from:
 #
@@ -11,25 +13,25 @@
 #
 %if 0%{?scl:1}
 %global sub_prefix  %{scl_prefix}
+%if "%{scl}" == "rh-php56"
+%global sub_prefix sclo-php56-
+%endif
+%if "%{scl}" == "rh-php70"
+%global sub_prefix sclo-php70-
+%endif
+%if "%{scl}" == "rh-php71"
+%global sub_prefix sclo-php71-
+%endif
 %scl_package        php-pecl-amqp
 %endif
 
-%global with_zts    0%{!?_without_zts:%{?__ztsphp:1}}
-%global with_tests  0%{?_with_tests:1}
 %global pecl_name   amqp
-%if "%{php_version}" < "5.6"
-%global ini_name    %{pecl_name}.ini
-%else
 %global ini_name    40-%{pecl_name}.ini
-%endif
-#global prever      beta2
-
-%global buildver %(pkg-config --silence-errors --modversion librabbitmq 2>/dev/null || echo 65536)
 
 Summary:       Communicate with any AMQP compliant server
 Name:          %{?sub_prefix}php-pecl-amqp
 Version:       1.9.1
-Release:       1%{?dist}%{!?scl:%{!?nophptag:%(%{__php} -r 'echo ".".PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')}}
+Release:       1%{?dist}
 License:       PHP
 Group:         Development/Languages
 URL:           http://pecl.php.net/package/amqp
@@ -37,22 +39,11 @@ Source0:       http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
 
 BuildRequires: %{?scl_prefix}php-devel > 5.3.0
 BuildRequires: %{?scl_prefix}php-pear
-#BuildRequires: php-debuginfo valgrind gdb
 # Upstream requires 0.5.2, set 0.8.0 to ensure "last" is used.
-%if 0%{?fedora} >= 23
 BuildRequires: librabbitmq-devel   >= 0.8.0
-Requires:      librabbitmq%{?_isa} >= %{buildver}
-%else
-BuildRequires: librabbitmq-last-devel   >= 0.8.0
-Requires:      librabbitmq-last%{?_isa} >= %{buildver}
-%endif
-%if %{with_tests}
-BuildRequires: rabbitmq-server
-%endif
 
 Requires:         %{?scl_prefix}php(zend-abi) = %{php_zend_api}
 Requires:         %{?scl_prefix}php(api) = %{php_core_api}
-%{?_sclreq:Requires: %{?scl_prefix}runtime%{?_sclreq}%{?_isa}}
 
 Provides:         %{?scl_prefix}php-%{pecl_name}               = %{version}
 Provides:         %{?scl_prefix}php-%{pecl_name}%{?_isa}       = %{version}
@@ -61,34 +52,6 @@ Provides:         %{?scl_prefix}php-pecl(%{pecl_name})%{?_isa} = %{version}
 %if "%{?scl_prefix}" != "%{?sub_prefix}"
 Provides:         %{?scl_prefix}php-pecl-%{pecl_name}          = %{version}-%{release}
 Provides:         %{?scl_prefix}php-pecl-%{pecl_name}%{?_isa}  = %{version}-%{release}
-%endif
-
-%if "%{?vendor}" == "Remi Collet" && 0%{!?scl:1} && 0%{?rhel}
-# Other third party repo stuff
-Obsoletes:     php53-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php53u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php54-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php54w-pecl-%{pecl_name} <= %{version}
-%if "%{php_version}" > "5.5"
-Obsoletes:     php55u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php55w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "5.6"
-Obsoletes:     php56u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php56w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "7.0"
-Obsoletes:     php70u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php70w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "7.1"
-Obsoletes:     php71u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php71w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "7.2"
-Obsoletes:     php72u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php72w-pecl-%{pecl_name} <= %{version}
-%endif
 %endif
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
@@ -174,30 +137,15 @@ extension = %{pecl_name}.so
 ;amqp.verify = ''
 EOF
 
-%if %{with_zts}
-cp -pr NTS ZTS
-%endif
-
 
 %build
-%{?dtsenable}
-
 cd NTS
 %{_bindir}/phpize
 %configure --with-php-config=%{_bindir}/php-config
 make %{?_smp_mflags}
 
-%if %{with_zts}
-cd ../ZTS
-%{_bindir}/zts-phpize
-%configure --with-php-config=%{_bindir}/zts-php-config
-make %{?_smp_mflags}
-%endif
-
 
 %install
-%{?dtsenable}
-
 make -C NTS install INSTALL_ROOT=%{buildroot}
 
 # Drop in the bit of configuration
@@ -205,11 +153,6 @@ install -Dpm 644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
 
 # Install XML package description
 install -Dpm 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
-
-%if %{with_zts}
-make -C ZTS install INSTALL_ROOT=%{buildroot}
-install -Dpm 644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
-%endif
 
 # Documentation
 cd NTS
@@ -221,57 +164,10 @@ done
 %check
 : Minimal load test for NTS extension
 %{__php} --no-php-ini \
-    --define extension=NTS/modules/%{pecl_name}.so \
+    --define extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
     -m | grep %{pecl_name}
 
-%if %{with_zts}
-: Minimal load test for ZTS extension
-%{__ztsphp} --no-php-ini \
-    --define extension=ZTS/modules/%{pecl_name}.so \
-    -m | grep %{pecl_name}
-%endif
 
-%if %{with_tests}
-mkdir log run base
-: Launch the RabbitMQ service
-export RABBITMQ_PID_FILE=$PWD/run/pid
-export RABBITMQ_LOG_BASE=$PWD/log
-export RABBITMQ_MNESIA_BASE=$PWD/base
-/usr/lib/rabbitmq/bin/rabbitmq-server &>log/output &
-/usr/lib/rabbitmq/bin/rabbitmqctl wait $RABBITMQ_PID_FILE
-
-ret=0
-pushd NTS
-: Run the upstream test Suite for NTS extension
-TEST_PHP_EXECUTABLE=%{__php} \
-TEST_PHP_ARGS="-n -d extension=$PWD/modules/%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{__php} -n run-tests.php --show-diff || ret=1
-popd
-
-%if %{with_zts}
-pushd ZTS
-: Run the upstream test Suite for ZTS extension
-TEST_PHP_EXECUTABLE=%{__ztsphp} \
-TEST_PHP_ARGS="-n -d extension=$PWD/modules/%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{__ztsphp} -n run-tests.php --show-diff || ret=1
-popd
-%endif
-
-: Cleanup
-if [ -s $RABBITMQ_PID_FILE ]; then
-   kill $(cat $RABBITMQ_PID_FILE)
-fi
-rm -rf log run base
-
-exit $ret
-%endif
-
-
-%if 0%{?fedora} < 24
 # when pear installed alone, after us
 %triggerin -- %{?scl_prefix}php-pear
 if [ -x %{__pecl} ] ; then
@@ -288,7 +184,6 @@ fi
 if [ $1 -eq 0 -a -x %{__pecl} ] ; then
     %{pecl_uninstall} %{pecl_name} >/dev/null || :
 fi
-%endif
 
 
 %files
@@ -299,13 +194,11 @@ fi
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
-%if %{with_zts}
-%config(noreplace) %{php_ztsinidir}/%{ini_name}
-%{php_ztsextdir}/%{pecl_name}.so
-%endif
-
 
 %changelog
+* Fri Jun 16 2017 Remi Collet <remi@remirepo.net> - 1.9.1-1
+- cleanup for SCLo build
+
 * Mon Jun 12 2017 Remi Collet <remi@remirepo.net> - 1.9.1-1
 - Update to 1.9.1 (stable)
 
