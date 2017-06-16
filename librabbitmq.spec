@@ -19,7 +19,7 @@
 Name:      %{libname}
 Summary:   Client library for AMQP
 Version:   0.8.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 License:   MIT
 Group:     System Environment/Libraries
 URL:       https://github.com/alanxz/rabbitmq-c
@@ -72,7 +72,7 @@ cp -pr examples Examples
 
 
 %build
-# static lib required for tests
+export CFLAGS="$RPM_OPT_FLAGS -fPIC"
 %cmake \
   -DBUILD_TOOLS_DOCS:BOOL=ON \
   -DBUILD_SHARED_LIBS:BOOL=OFF \
@@ -118,6 +118,9 @@ make test
 
 
 %changelog
+* Fri Jun 16 2017 Remi Collet <remi@remirepo.net> - 0.8.0-2
+- build with --fPIC
+
 * Fri Jun 16 2017 Remi Collet <remi@remirepo.net> - 0.8.0-1
 - cleanup for SCLo build
 - provide only the static library
