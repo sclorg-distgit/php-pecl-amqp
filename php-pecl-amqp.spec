@@ -1,4 +1,4 @@
-# centos/sclo spec file for php-pecl-igbinary, from:
+# centos/sclo spec file for php-pecl-amqp, from:
 #
 # remirepo spec file for php-pecl-amqp
 # with SCL compatibility, from:
