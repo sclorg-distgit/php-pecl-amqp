@@ -9,6 +9,8 @@ This package only build the static library
     cbs add-pkg    sclo7-sclo-php56-sclo-candidate --owner=sclo  librabbitmq
     cbs build      sclo7-sclo-php70-sclo-el7       <above>.src.rpm
  	cbs tag-build  sclo7-sclo-php56-sclo-candidate <above build>
+    cbs add-pkg    sclo7-sclo-php71-sclo-candidate --owner=sclo  librabbitmq
+ 	cbs tag-build  sclo7-sclo-php71-sclo-candidate <above build>
 
     build -bs *spec --define "dist .el6"
     cbs add-pkg    sclo6-sclo-php70-sclo-candidate --owner=sclo  librabbitmq
