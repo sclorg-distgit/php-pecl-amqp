@@ -1,7 +1,7 @@
 This repository contains sources for RPMs that are used
 to build Software Collections for CentOS by SCLo SIG.
 
-This branch is for sclo-php56, sclo-php70 and sclo-php77 packages
+This branch is for sclo-php56, sclo-php70 and sclo-php71 packages
 (for rh-php56, rh-php70 SCL and rh-php71 SCL)
 
 
