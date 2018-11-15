@@ -19,6 +19,9 @@
 %if "%{scl}" == "rh-php71"
 %global sub_prefix sclo-php71-
 %endif
+%if "%{scl}" == "rh-php72"
+%global sub_prefix sclo-php72-
+%endif
 %scl_package        php-pecl-amqp
 %endif
 
@@ -28,7 +31,7 @@
 Summary:       Communicate with any AMQP compliant server
 Name:          %{?sub_prefix}php-pecl-amqp
 Version:       1.9.3
-Release:       2%{?dist}
+Release:       3%{?dist}
 License:       PHP
 Group:         Development/Languages
 URL:           http://pecl.php.net/package/amqp
@@ -193,6 +196,9 @@ fi
 
 
 %changelog
+* Thu Nov 15 2018 Remi Collet <remi@remirepo.net> - 1.9.3-3
+- build for sclo-php72
+
 * Tue May 15 2018 Remi Collet <remi@remirepo.net> - 1.9.3-2
 - rebuild against librabbitmq 0.8.0 in RHEL 7.5
 
