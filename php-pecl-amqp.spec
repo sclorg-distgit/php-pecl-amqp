@@ -5,7 +5,7 @@
 #
 # Fedora spec file for php-pecl-amqp
 #
-# Copyright (c) 2012-2018 Remi Collet
+# Copyright (c) 2012-2019 Remi Collet
 # License: CC-BY-SA
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
@@ -30,14 +30,14 @@
 
 Summary:       Communicate with any AMQP compliant server
 Name:          %{?sub_prefix}php-pecl-amqp
-Version:       1.9.3
-Release:       3%{?dist}
+Version:       1.9.4
+Release:       1%{?dist}
 License:       PHP
 Group:         Development/Languages
 URL:           http://pecl.php.net/package/amqp
 Source0:       http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
 
-BuildRequires: %{?scl_prefix}php-devel > 5.3.0
+BuildRequires: %{?scl_prefix}php-devel > 5.6
 BuildRequires: %{?scl_prefix}php-pear
 # Upstream requires 0.5.2, set 0.8.0 to ensure proper version is used.
 BuildRequires: librabbitmq-devel   >= 0.8.0
@@ -66,8 +66,6 @@ This extension can communicate with any AMQP spec 0-9-1 compatible server,
 such as RabbitMQ, OpenAMQP and Qpid, giving you the ability to create and
 delete exchanges and queues, as well as publish to any exchange and consume
 from any queue.
-
-Package built for PHP %(%{__php} -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')%{?scl: as Software Collection (%{scl} by %{?scl_vendor}%{!?scl_vendor:rh})}.
 
 
 %prep
@@ -135,6 +133,7 @@ extension = %{pecl_name}.so
 ;amqp.cert = ''
 ;amqp.key = ''
 ;amqp.verify = ''
+;amqp.sasl_method = 0
 EOF
 
 
@@ -196,6 +195,11 @@ fi
 
 
 %changelog
+* Wed Jan  2 2019 Remi Collet <remi@remirepo.net> - 1.9.4-1
+- update to 1.9.4
+- drop patch merged upstream
+- raise minimal PHP version to 5.6
+
 * Thu Nov 15 2018 Remi Collet <remi@remirepo.net> - 1.9.3-3
 - build for sclo-php72
 
