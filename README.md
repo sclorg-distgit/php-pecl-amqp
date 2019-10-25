@@ -5,6 +5,15 @@ This branch is for sclo-php70, sclo-php71 and sclo-php72 packages
 (for rh-php70 SCL, rh-php71 and rh-php72 SCL)
 
 
+PHP 7.3 / EL 7
+
+    build -bs *spec --define "scl rh-php73" --define "dist .el7"
+    cbs add-pkg    sclo7-sclo-php73-sclo-candidate --owner=sclo  sclo-php73-php-pecl-amqp
+    cbs add-pkg    sclo7-sclo-php73-sclo-testing   --owner=sclo  sclo-php73-php-pecl-amqp
+    cbs add-pkg    sclo7-sclo-php73-sclo-release   --owner=sclo  sclo-php73-php-pecl-amqp
+    cbs build      sclo7-sclo-php73-sclo-el7       <above>.src.rpm
+    cbs tag-build  sclo7-sclo-php73-sclo-testing   <previous>
+
 PHP 7.2 / EL 7
 
     build -bs *spec --define "scl rh-php72" --define "dist .el7"
